@@ -6,5 +6,6 @@
     "uid": "sa",
     "pwd": "password",
     "user": "system@pacific-emis.org",
-    "load_year": "MISAT 2021"
+    "load_year": "MISAT 2021",
+    "skip_incorrect_answers": false
 }
