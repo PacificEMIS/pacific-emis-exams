@@ -8,4 +8,15 @@
     "user": "system@pacific-emis.org",
     "load_year": "MISAT 2021",
     "skip_incorrect_answers": false
+    "test": "MISAT",
+    "country": "RMI",
+    "load_year": "all",
+    "skip_incorrect_answers": true,
+    "remove_items_metadata": false,
+    "fix_schoolid_in_source_data": false,
+    "accept_teachers_with_three_chars_only": false,
+    "export": "xlsx",
+    "accept_unknown_gender": true,
+    "accept_unknown_student": true,
+    "accept_unknown_teacher": true
 }
