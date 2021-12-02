@@ -12,6 +12,7 @@
     "country": "RMI",
     "load_year": "all",
     "skip_incorrect_answers": true,
+    "flag_duplicate_students": false,    
     "remove_items_metadata": false,
     "fix_schoolid_in_source_data": false,
     "accept_teachers_with_three_chars_only": false,
