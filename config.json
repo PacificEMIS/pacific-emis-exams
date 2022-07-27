@@ -1,13 +1,13 @@
 {
     "server": "SERVERNAME\\SQLEXPRESS",
     "database": "PACIFICEMISDB",
-    "server_ip": "192.168.1.100",
+    "server_ip": "192.168.2.109",
     "server_port": "1433",
     "uid": "sa",
     "pwd": "password",
     "user": "system@pacific-emis.org",
     "load_year": "MISAT 2021",
-    "skip_incorrect_answers": false
+    "skip_incorrect_answers": false,
     "test": "MISAT",
     "country": "RMI",
     "load_year": "all",
