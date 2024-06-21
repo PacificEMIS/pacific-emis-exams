@@ -38,7 +38,6 @@ from tqdm.notebook import trange, tqdm
 # Configuration (initial setup)
 with open('config.json', 'r') as file:
      config = json.load(file)
-
 test = config['test']
 country = config['country']
 cwd = os.getcwd()

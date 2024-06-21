@@ -19,5 +19,8 @@
     "export": "xlsx",
     "accept_unknown_gender": true,
     "accept_unknown_student": true,
-    "accept_unknown_teacher": true
+    "accept_unknown_teacher": true,
+    "tao_username": "admin",
+    "tao_password": "password",
+    "tao_server_url": "http://pacifictest.pacific-emis.org"
 }
