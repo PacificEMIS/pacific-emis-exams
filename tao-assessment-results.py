@@ -33,33 +33,20 @@ print('df_data preview')
 display(df_data[:3])
 
 print('df_date info')
-print(data.info())
+print(df_data.info())
 
 print('df_date columns')
-print(list(data.columns))
-
-# %%
-# Extract columns containing 'SCORE' in their names but excluding 'MAXSCORE', 'SCORE_RATIO', 'SCORE_TOTAL', and 'SCORE_TOTAL_MAX'
-score_columns = [col for col in df_data_filled_missing.columns if 'SCORE' in col and all(exclusion not in col for exclusion in ['MAXSCORE', 'SCORE_RATIO', 'SCORE_TOTAL', 'SCORE_TOTAL_MAX'])]
-
-
-
-# Extract columns containing 'duration' in their names
-duration_columns = [col for col in df_data_filled_missing.columns if 'duration' in col]
-
-# Summary statistics for each score column
-score_statistics = df_data[score_columns].describe()
-score_statistics_filled_missing = df_data_filled_missing[score_columns].describe()
-
-# Display the statistics
-print("Summary Statistics for SCORE Columns (original):")
-display(score_statistics)
-print("Summary Statistics for SCORE Columns (filled missing):")
-display(score_statistics_filled_missing)
+print(list(df_data.columns))
 
 # %%
 # Create a copy of df_data to work on
 df_data_filled_missing = df_data.copy()
+
+# Extract columns containing 'SCORE' in their names but excluding 'MAXSCORE', 'SCORE_RATIO', 'SCORE_TOTAL', and 'SCORE_TOTAL_MAX'
+score_columns = [col for col in df_data_filled_missing.columns if 'SCORE' in col and all(exclusion not in col for exclusion in ['MAXSCORE', 'SCORE_RATIO', 'SCORE_TOTAL', 'SCORE_TOTAL_MAX'])]
+
+# Extract columns containing 'duration' in their names
+duration_columns = [col for col in df_data_filled_missing.columns if 'duration' in col]
 
 # Define the function to fill missing data
 def fill_missing_data(df, score_col):
@@ -98,6 +85,17 @@ df_data_filled_missing.head()
 # Save the modified DataFrame to a new CSV file
 output_filename = os.path.join(local_path, 'TAO/results_exports/delivery_of_mathematics_practice_test_2020_v1_i16066499465949598_2024070317025365-filled-missing.csv')
 df_data_filled_missing.to_csv(output_filename, index=False)
+
+# %%
+# Summary statistics for each score column
+score_statistics = df_data[score_columns].describe()
+score_statistics_filled_missing = df_data_filled_missing[score_columns].describe()
+
+# Display the statistics
+print("Summary Statistics for SCORE Columns (original):")
+display(score_statistics)
+print("Summary Statistics for SCORE Columns (filled missing):")
+display(score_statistics_filled_missing)
 
 # %%
 # Check for missing values in each score column
@@ -178,3 +176,35 @@ report_df.to_excel(excel_filename, index=False)
 
 # Convert the HTML report to PDF
 pdfkit.from_file(html_filename, pdf_filename )
+
+# %%
+################################################################################
+# Calculate Cronbach's alpha
+################################################################################
+
+# Subset the data to include only the score columns
+scores_df = df_data_filled_missing[score_columns]
+
+# Calculate the number of items
+n_items = len(score_columns)
+print(f"Number of items: {n_items}")
+
+# Calculate the variance for each item
+item_variances = scores_df.var(axis=0, ddof=1)
+#print(f"Item variances: {item_variances}")
+print(f"Sum of item variances: {item_variances.sum()}")
+
+# Calculate the total score for each participant
+total_scores = scores_df.sum(axis=1)
+#print(f"Total scores: {total_scores}")
+
+# Calculate the variance of the total scores
+total_score_variance = total_scores.var(ddof=1)
+print(f"Total scores variance: {total_score_variance}")
+
+# Calculate Cronbach's alpha
+cronbach_alpha = (n_items / (n_items - 1)) * (1 - (item_variances.sum() / total_score_variance))
+
+print(f"Cronbach's Alpha: {cronbach_alpha}")
+
+# %%
