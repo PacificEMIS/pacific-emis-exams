@@ -21,6 +21,7 @@ import zipfile
 import base64
 import os
 import json
+import jsbeautifier
 
 from IPython.display import display, Markdown
 
@@ -33,11 +34,16 @@ password = config['tao_password']
 tao_server_url = config['tao_server_url']
 
 # The samples below will need to have URI adjusted for the server in use.
-sample_testtakerUri = 'http://pacifictest1-1.purltek.com/first.rdf#i66740de10b8c9256742627033f714db960'
-sample_deliveryUri = 'http://pacifictest1-1.purltek.com/first.rdf#i667426cc1074825386922c196a498596ce'
-sample_itemUri = 'http://pacifictest1-1.purltek.com/first.rdf#i6673eaa03ec8b25386eb74654e2440908b'
-sample_testUri = 'http://pacifictest1-1.purltek.com/first.rdf#i667428df5ead22567868a6df1e9751f57e'
-sample_testUri2 = 'http://pacifictest1-1.purltek.com/first.rdf#i667428b5718fc25487b7188603a736d3c5'
+#sample_testtakerUri = 'http://pacifictest1-1.purltek.com/first.rdf#i66740de10b8c9256742627033f714db960'
+#sample_deliveryUri = 'http://pacifictest1-1.purltek.com/first.rdf#i667426cc1074825386922c196a498596ce'
+#sample_itemUri = 'http://pacifictest1-1.purltek.com/first.rdf#i6673eaa03ec8b25386eb74654e2440908b'
+#sample_testUri = 'http://pacifictest1-1.purltek.com/first.rdf#i667428df5ead22567868a6df1e9751f57e'
+#sample_testUri2 = 'http://pacifictest1-1.purltek.com/first.rdf#i667428b5718fc25487b7188603a736d3c5'
+sample_testtakerUri = 'http://fedtests.nuzusys.com/FedTESTS.rdf#i16066442242141455'
+sample_deliveryUri = 'http://fedtests.nuzusys.com/FedTESTS.rdf#i16066499465949598'
+sample_itemUri = 'http://fedtests.nuzusys.com/FedTESTS.rdf#i16064432284408326'
+sample_testUri = 'http://fedtests.nuzusys.com/FedTESTS.rdf#i16066493657445593'
+sample_testUri2 = 'http://fedtests.nuzusys.com/FedTESTS.rdf#i16066498847989596'
 
 # Setup some commonly used paths
 local_path = os.path.abspath('/mnt/h/Development/Pacific EMIS/repositories-data/pacific-emis-exams/TAO')
@@ -84,6 +90,29 @@ def pretty_print_json(input):
 
     # Print the pretty JSON
     print(pretty_json_as_string)
+
+def pretty_print_css(input_css):
+    """
+    Pretty prints CSS input.
+    
+    :param input_css: The CSS input as a string or a file path.
+    """
+    # Check if the input is a file path
+    if os.path.isfile(input_css):
+        # Read the content of the file
+        with open(input_css, 'r') as file:
+            css_content = file.read()
+    else:
+        # Assume the input is a CSS string
+        css_content = input_css
+
+    # Use jsbeautifier to pretty print the CSS
+    beautifier_opts = jsbeautifier.default_options()
+    beautified_css = jsbeautifier.beautify(css_content, beautifier_opts)
+
+    # Print the pretty CSS
+    print(beautified_css)
+
 
 
 # %%
@@ -186,7 +215,12 @@ def get_item(itemUri):
     
             for file in files:
                 print("\nPretty printing: {}".format(file))
-                pretty_print_xml(os.path.join(root, file))
+                if file.endswith('.xml'):
+                    pretty_print_xml(os.path.join(root, file))
+                elif file.endswith('.css'):
+                    pretty_print_css(os.path.join(root, file))
+                else:
+                    print("Unsupported file type: {}".format(file))
             
     else:
         print(f"Request failed with status code {response.status_code}")
@@ -261,7 +295,7 @@ def get_package(testUri):
     if response.status_code == 200:
         print("Request was successful, downloading the QTI package...")
 
-        #pretty_print_json(response.text)
+        pretty_print_json(response.text)
         
         # Extract the base64 string from the response
         base64_zip_str = response.json()['data']['qtiPackage']
