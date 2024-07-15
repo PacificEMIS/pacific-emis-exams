@@ -34,16 +34,16 @@ password = config['tao_password']
 tao_server_url = config['tao_server_url']
 
 # The samples below will need to have URI adjusted for the server in use.
-#sample_testtakerUri = 'http://pacifictest1-1.purltek.com/first.rdf#i66740de10b8c9256742627033f714db960'
-#sample_deliveryUri = 'http://pacifictest1-1.purltek.com/first.rdf#i667426cc1074825386922c196a498596ce'
-#sample_itemUri = 'http://pacifictest1-1.purltek.com/first.rdf#i6673eaa03ec8b25386eb74654e2440908b'
-#sample_testUri = 'http://pacifictest1-1.purltek.com/first.rdf#i667428df5ead22567868a6df1e9751f57e'
-#sample_testUri2 = 'http://pacifictest1-1.purltek.com/first.rdf#i667428b5718fc25487b7188603a736d3c5'
-sample_testtakerUri = 'http://fedtests.nuzusys.com/FedTESTS.rdf#i16066442242141455'
-sample_deliveryUri = 'http://fedtests.nuzusys.com/FedTESTS.rdf#i16066499465949598'
-sample_itemUri = 'http://fedtests.nuzusys.com/FedTESTS.rdf#i16064432284408326'
-sample_testUri = 'http://fedtests.nuzusys.com/FedTESTS.rdf#i16066493657445593'
-sample_testUri2 = 'http://fedtests.nuzusys.com/FedTESTS.rdf#i16066498847989596'
+sample_testtakerUri = 'http://pacifictest1-1.purltek.com/first.rdf#i66740de10b8c9256742627033f714db960'
+sample_deliveryUri = 'http://pacifictest1-1.purltek.com/first.rdf#i667426cc1074825386922c196a498596ce'
+sample_itemUri = 'http://pacifictest1-1.purltek.com/first.rdf#i6673eaa03ec8b25386eb74654e2440908b'
+sample_testUri = 'http://pacifictest1-1.purltek.com/first.rdf#i667428df5ead22567868a6df1e9751f57e'
+sample_testUri2 = 'http://pacifictest1-1.purltek.com/first.rdf#i667428b5718fc25487b7188603a736d3c5'
+#sample_testtakerUri = 'http://fedtests.nuzusys.com/FedTESTS.rdf#i16066442242141455'
+#sample_deliveryUri = 'http://fedtests.nuzusys.com/FedTESTS.rdf#i16066499465949598'
+#sample_itemUri = 'http://fedtests.nuzusys.com/FedTESTS.rdf#i16064432284408326'
+#sample_testUri = 'http://fedtests.nuzusys.com/FedTESTS.rdf#i16066493657445593'
+#sample_testUri2 = 'http://fedtests.nuzusys.com/FedTESTS.rdf#i16066498847989596'
 
 # Setup some commonly used paths
 local_path = os.path.abspath('/mnt/h/Development/Pacific EMIS/repositories-data/pacific-emis-exams/TAO')
@@ -320,7 +320,12 @@ def get_package(testUri):
     
             for file in files:
                 print("\nPretty printing: {}".format(file))
-                pretty_print_xml(os.path.join(root, file))
+                if file.endswith('.xml'):
+                    pretty_print_xml(os.path.join(root, file))
+                elif file.endswith('.css'):
+                    pretty_print_css(os.path.join(root, file))
+                else:
+                    print("Unsupported file type: {}".format(file))
             
     else:
         print(f"Request failed with status code {response.status_code}")
