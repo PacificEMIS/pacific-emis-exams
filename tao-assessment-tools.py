@@ -32,6 +32,7 @@ with open('config.json', 'r') as file:
 username = config['tao_username']
 password = config['tao_password']
 tao_server_url = config['tao_server_url']
+tao_local_path = config['tao_local_path']
 
 # The samples below will need to have URI adjusted for the server in use.
 sample_testtakerUri = 'http://pacifictest1-1.purltek.com/first.rdf#i66740de10b8c9256742627033f714db960'
@@ -46,7 +47,7 @@ sample_testUri2 = 'http://pacifictest1-1.purltek.com/first.rdf#i667428b5718fc254
 #sample_testUri2 = 'http://fedtests.nuzusys.com/FedTESTS.rdf#i16066498847989596'
 
 # Setup some commonly used paths
-local_path = os.path.abspath('/mnt/h/Development/Pacific EMIS/repositories-data/pacific-emis-exams/TAO')
+local_path = os.path.abspath(tao_local_path)
 zip_file_path = os.path.join(local_path, 'qti_package.zip')
 extract_path = os.path.join(local_path, 'extracted_qti_package')
 
