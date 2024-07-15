@@ -22,5 +22,6 @@
     "accept_unknown_teacher": true,
     "tao_username": "admin",
     "tao_password": "password",
-    "tao_server_url": "http://pacifictest.pacific-emis.org"
+    "tao_server_url": "http://pacifictest.pacific-emis.org",
+    "tao_local_path": "/mnt/h/Development/Pacific EMIS/repositories-data/pacific-emis-exams/TAO"
 }
