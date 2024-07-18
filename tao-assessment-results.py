@@ -19,15 +19,98 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import pdfkit
+import json
+from pathlib import Path
+import openpyxl
+
+# Configuration (initial setup)
+with open('config.json', 'r') as file:
+     config = json.load(file)
+    
+tao_local_path = config['tao_local_path']
 
 # Define the file path
 file_path = 'path_to_your_file.csv'  # Replace with your actual file path
 
-local_path = os.path.abspath('/mnt/h/Development/Pacific EMIS/repositories-data/pacific-emis-exams/')
-filename = os.path.join(local_path, 'TAO/results_exports/delivery_of_mathematics_practice_test_2020_v1_i16066499465949598_2024070317025365.csv')
+result_dir = os.path.join(tao_local_path, 'results_exports')
 
-# Load the CSV file into a DataFrame
-df_data = pd.read_csv(filename)
+# Choose with file to work with
+#result_filename = 'delivery_of_mathematics_practice_test_2020_v1_i16066499465949598_2024070317025365.csv'
+result_filename = 'delivery_of_english_language_arts_practice_test_2020_v1_i160664998645852_2024070317033875.xlsx'
+filename = os.path.join(result_dir, result_filename)
+
+
+# %%
+def load_excel_to_df(filename):
+    """Loads an Excel filename to a Pandas DataFrame.
+
+    Parameters
+    ----------
+    filename : str, required
+        The filename of the excel file to load
+
+    Raises
+    ------
+    NotImplementedError
+        Could raise unknown error. Implement if it happens
+    
+    Returns
+    -------
+    DataFrame
+    """
+    file_path = Path(filename)
+    file_extension = file_path.suffix.lower()[1:]
+
+    if file_extension == 'xlsx':
+        df = pd.read_excel(filename, index_col=None, header=0, engine='openpyxl')
+    elif file_extension == 'xls':
+        df = pd.read_excel(filename, index_col=None, header=0)
+    elif file_extension == 'csv':
+        df = pd.read_csv(filename, index_col=None, header=0)
+    else:
+        raise Exception("File not supported")
+
+    return df
+
+def save_df_to_file(df, filename):
+    """Saves an Pandas DataFrame to a file handling the file type.
+
+    Parameters
+    ----------
+    filename : str, required
+        The filename of the excel file to load
+    df : DataFrame, required
+        The Pandas DataFramw to save to file
+
+    Raises
+    ------
+    NotImplementedError
+        Could raise unknown error. Implement if it happens
+    
+    Returns
+    -------
+    None
+    """
+    file_path = Path(filename)
+    file_extension = file_path.suffix.lower()[1:]
+
+    if file_extension == 'xlsx':
+        df.to_excel(filename, index=False)  # index=False to avoid saving the index as a column
+    elif file_extension == 'xls':
+        df.to_excel(filename, index=False)  # index=False to avoid saving the index as a column
+    elif file_extension == 'csv':
+        df.to_csv(filename, index=False)
+    else:
+        raise Exception(f"File type {file_extension} not supported")
+
+    print(f"Saved file {filename}")
+
+
+# %%
+################################################################################
+# Load the file into a DataFrame
+################################################################################
+df_data = load_excel_to_df(filename)
 
 print('df_data preview')
 display(df_data[:3])
@@ -81,10 +164,9 @@ df_data_filled_missing = pd.concat([
 # Display the first few rows to verify the insertion
 df_data_filled_missing.head()
 
-
-# Save the modified DataFrame to a new CSV file
-output_filename = os.path.join(local_path, 'TAO/results_exports/delivery_of_mathematics_practice_test_2020_v1_i16066499465949598_2024070317025365-filled-missing.csv')
-df_data_filled_missing.to_csv(output_filename, index=False)
+# Save the modified DataFrame to a new file
+output_filename = filename.split('.')[0]+'-filled-missing.'+filename.split('.')[1]
+save_df_to_file(df_data_filled_missing, output_filename)
 
 # %%
 # Summary statistics for each score column
@@ -118,6 +200,10 @@ missing_items = {col: df_data[user_identifiers + [col]][df_data[col].isnull()] f
 #    print("\n")
 
 # %%
+################################################################################
+# Simple plot of the data
+################################################################################
+
 # Count the number of participants scoring 1 and 0 for each item
 score_1_counts = df_data_filled_missing[score_columns].apply(lambda x: (x == 1).sum())
 score_0_counts = df_data_filled_missing[score_columns].apply(lambda x: (x == 0).sum())
@@ -145,6 +231,10 @@ for i in range(num_groups):
 
 
 # %%
+################################################################################
+# Process simple reports
+################################################################################
+
 # Select relevant columns for the report
 report_df = df_data_filled_missing[['First Name', 'Last Name', 'Mail', 'Computed_Test_SCORE_RATIO']]
 
@@ -153,6 +243,8 @@ report_df = report_df.sort_values(by='Computed_Test_SCORE_RATIO', ascending=Fals
 
 # Format the score as percentage using .loc to avoid the warning
 report_df.loc[:, 'Computed_Test_SCORE_RATIO'] = (report_df['Computed_Test_SCORE_RATIO']*100).map("{:.2f}%".format)
+
+display(report_df)
 
 # Style the DataFrame for HTML output
 def color_score(val):
@@ -163,19 +255,21 @@ def color_score(val):
 styled_report = report_df.style.map(color_score, subset=['Computed_Test_SCORE_RATIO'])
 
 # Save the styled DataFrame as an HTML file
-html_filename = os.path.join(local_path, 'TAO/results_exports/delivery_of_mathematics_practice_test_2020_v1_i16066499465949598_2024070317025365-report.html')
-excel_filename = os.path.join(local_path, 'TAO/results_exports/delivery_of_mathematics_practice_test_2020_v1_i16066499465949598_2024070317025365-report.xlsx')
-pdf_filename = os.path.join(local_path, 'TAO/results_exports/delivery_of_mathematics_practice_test_2020_v1_i16066499465949598_2024070317025365-report.pdf')
+# Save the modified DataFrame to a new file
+
+html_filename = filename.split('.')[0]+'-report.html'
+excel_filename = filename.split('.')[0]+'-report.xlsx'
+pdf_filename = filename.split('.')[0]+'-report.pdf'
 
 html = styled_report.to_html()
 with open(html_filename, 'w') as f:
     f.write(html)
 
 # Save the DataFrame as an Excel file
-report_df.to_excel(excel_filename, index=False)
+save_df_to_file(report_df, excel_filename)
 
 # Convert the HTML report to PDF
-pdfkit.from_file(html_filename, pdf_filename )
+pdfkit.from_file(html_filename, pdf_filename)
 
 # %%
 ################################################################################
@@ -206,5 +300,115 @@ print(f"Total scores variance: {total_score_variance}")
 cronbach_alpha = (n_items / (n_items - 1)) * (1 - (item_variances.sum() / total_score_variance))
 
 print(f"Cronbach's Alpha: {cronbach_alpha}")
+
+# %%
+################################################################################
+# Anonymize the data (useful for sharing with ChatGPT or others)
+################################################################################
+
+import random
+import string
+
+df_anonymized = df_data_filled_missing.copy()
+
+# Function to generate a unique fictitious name
+def generate_fictitious_name(existing_names):
+    while True:
+        name = ''.join(random.choices(string.ascii_uppercase, k=5))
+        if name not in existing_names:
+            existing_names.add(name)
+            return name
+
+# Columns of interest to anonymize
+#'Test Taker', 'Login', 'First Name', 'Last Name', 'Mail',
+
+# Initialize sets to keep track of used fictitious names
+teacher_first_names = set()
+teacher_last_names = set()
+
+# Create mappings for student and teacher names
+teacher_first_name_mapping = {name: generate_fictitious_name(teacher_first_names) for name in df_anonymized['First Name'].unique()}
+teacher_last_name_mapping = {name: generate_fictitious_name(teacher_last_names) for name in df_anonymized['Last Name'].unique()}
+
+# Replace the names in the DataFrame
+df_anonymized['First Name'] = df_anonymized['First Name'].map(teacher_first_name_mapping)
+df_anonymized['Last Name'] = df_anonymized['Last Name'].map(teacher_last_name_mapping)
+df_anonymized['Test Taker'] = df_anonymized['First Name'] + ' ' + df_anonymized['Last Name']
+df_anonymized['Login'] = df_anonymized['First Name'] + df_anonymized['Last Name']
+df_anonymized['Mail'] = df_anonymized['Login'].str.lower() + '@example.com'
+
+df_anonymized.insert(0, 'row', range(len(df_anonymized)))
+
+# Display the first few rows to verify
+display(df_anonymized[:3])
+
+output_filename = filename.split('.')[0]+'-anonymized.'+filename.split('.')[1]
+save_df_to_file(df_anonymized, output_filename)
+
+# %%
+################################################################################
+# Extract RESPONSEs and SCOREs to analyse them
+################################################################################
+
+# Drop all columns except 'row' and those matching 'RESPONSE' and 'SCORE' but not 'MAXSCORE'
+columns_to_keep = ['row'] + [col for col in df_anonymized.columns if ('RESPONSE' in col or 'SCORE' in col) and 'MAXSCORE' not in col]
+df_anonymized_filtered = df_anonymized[columns_to_keep]
+
+# Display the first few rows of the filtered DataFrame
+df_anonymized_filtered.head()
+
+# Select RESPONSE columns
+response_columns = [col for col in df_anonymized_filtered.columns if 'RESPONSE' in col]
+score_columns = [col for col in df_anonymized_filtered.columns if 'SCORE' in col]
+
+# Melt the DataFrame to unpivot the RESPONSE columns
+df_melted_response = df_anonymized_filtered.melt(id_vars=['row'], value_vars=response_columns, 
+                                        var_name='item', value_name='result')
+df_melted_score = df_anonymized_filtered.melt(id_vars=['row'], value_vars=score_columns, 
+                                        var_name='item', value_name='result')
+
+# Extract the actual item name from the column names
+df_melted_response['item'] = df_melted_response['item'].str.replace('-RESPONSE', '')
+df_melted_score['item'] = df_melted_score['item'].str.replace('-SCORE', '')
+
+# Sort the melted DataFrame by the 'row' column to keep the data for each participant closer
+df_melted_response = df_melted_response.sort_values(by=['row','item'])
+df_melted_score = df_melted_score.sort_values(by=['row','item'])
+
+# Display the first few rows of the transformed DataFrame
+display(df_melted_response[:3])
+display(df_melted_score[:3])
+
+# Merge the melted RESPONSE and SCORE DataFrames on 'row' and 'item'
+df_final = df_melted_response.merge(df_melted_score, on=['row', 'item'], suffixes=('_response', '_score'))
+
+# Rename the columns for clarity
+df_final = df_final.rename(columns={'result_response': 'result', 'result_score': 'score'})
+
+# Display the first few rows of the final merged DataFrame
+df_final.head(20)
+
+# %%
+################################################################################
+# Create a pivot table to summarize the scores
+# Used to compare with Excel pivot table from SQL processed data as verification
+################################################################################
+pivot_table = df_final.pivot_table(values='row', index='item', columns='score', aggfunc='count', fill_value=0)
+
+# Plot the pivot table with lighter colors and numbers on the bars
+ax = pivot_table.plot(kind='bar', stacked=True, figsize=(14, 8), colormap='Pastel1')
+plt.title('Summary of Scores by Item')
+plt.xlabel('Item')
+plt.ylabel('Count of Scores')
+plt.legend(title='Score')
+plt.grid(axis='y', alpha=0.75)
+
+# Add numbers on the bars
+for container in ax.containers:
+    ax.bar_label(container, label_type='center')
+
+plt.tight_layout()
+plt.show()
+
 
 # %%
